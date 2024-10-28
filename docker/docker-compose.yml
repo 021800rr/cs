@@ -1,0 +1,46 @@
+services:
+
+  cs-php:
+    build:
+      dockerfile: php/Dockerfile
+    container_name: cs-php-dev
+    volumes:
+      - ./../BE/:/var/www
+      - ./php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ./php/conf.d/error_reporting.ini:/usr/local/etc/php/conf.d/error_reporting.ini
+      - ./php/conf.d/zzz_memory_limit.ini:/usr/local/etc/php/conf.d/zzz_memory_limit.ini
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - cs-net
+
+  cs-nginx:
+    image: nginx # :1.25-alpine
+    container_name: cs-nginx-dev
+    restart: unless-stopped
+    ports:
+      - "${NGINX_PORTS}"
+    volumes:
+      - ./nginx/conf.d/:/etc/nginx/conf.d
+      - ./../BE/public:/var/www/public
+    networks:
+      - cs-net
+
+  cs-postgres:
+    image: postgres:16-alpine
+    container_name: cs-postgres-dev
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORTS}"
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
+    networks:
+      - cs-net
+
+networks:
+  cs-net:
+    driver: bridge

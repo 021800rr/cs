@@ -1,0 +1,11 @@
+parameters:
+    level: 9
+    paths:
+        - src/
+        - tests/
+    treatPhpDocTypesAsCertain: false
+services:
+	-
+		class: App\PHPStan\AlwaysUsedClassConstantsExtension
+		tags:
+			- phpstan.constants.alwaysUsedClassConstantsExtension
